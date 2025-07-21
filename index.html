@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for Inter font and general styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fce7f3; /* Light Pink Background */
+            color: #333;
+            line-height: 1.6;
+            scroll-behavior: smooth; /* Smooth scrolling for navigation */
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #fce7f3;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #fbcfe8;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f9a8d4;
+        }
+
+        /* Hero section specific styling */
+        .hero-section {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); /* Gradient pink */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Section styling */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Hover effects for buttons and links */
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .link-hover:hover {
+            color: #ec4899; /* Darker pink on hover */
+            text-decoration: underline;
+        }
+
+        /* Project card styling */
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 300px;
+            height: 40px;
+            
+             
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Chatbox specific styling */
+        #chatbox-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #chatbox-toggle-btn {
+            background-color: #ec4899; /* Darker pink */
+            color: white;
+            padding: 1rem;
+            border-radius: 9999px; /* Full rounded */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        #chatbox-toggle-btn:hover {
+            background-color: #d82c81; /* Even darker pink */
+            transform: scale(1.05);
+        }
+
+        #chatbox {
+            width: 320px;
+            height: 400px;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px); /* Start slightly off-screen */
+            opacity: 0;
+            pointer-events: none; /* Disable interaction when hidden */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        #chatbox.open {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto; /* Enable interaction when open */
+        }
+
+        #chatbox-header {
+            background-color: #fbcfe8; /* Light pink header */
+            color: #831843; /* Dark pink text */
+            padding: 1rem;
+            font-weight: bold;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chatbox-close-btn {
+            background: none;
+            border: none;
+            color: #831843;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        #chatbox-close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        #chatbox-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #fdf2f8; /* Very light pink for messages area */
+        }
+
+        .chat-message {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            background-color: #fbcfe8; /* User message background */
+            color: #333;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+
+        .chat-message.ai {
+            background-color: #e0f2fe; /* AI message background (light blue for contrast) */
+            color: #333;
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        #chatbox-input-container {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #fbcfe8;
+            background-color: #fff;
+            border-bottom-left-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        #chatbox-input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #fbcfe8;
+            border-radius: 0.5rem;
+            outline: none;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        #chatbox-send-btn {
+            background-color: #ec4899;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #chatbox-send-btn:hover {
+            background-color: #d82c81;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: #999;
+        }
+
+        .loading-indicator::after {
+            content: '...';
+            animation: dots 1s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: #999;
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow:
+                    .25em 0 0 #999,
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            80%, 100% {
+                text-shadow:
+                    .25em 0 0 #999,
+                    .5em 0 0 #999;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-pink-400 p-4 sticky top-0 z-50 shadow-lg rounded-b-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-white text-2xl font-bold rounded-md p-2 hover:bg-pink-500 transition duration-300">My Portfolio</a>
+            <div class="flex space-x-4">
+                <a href="#about" class="text-white hover:text-pink-100 px-3 py-2 rounded-md text-lg font-medium transition duration-300 link-hover">About</a>
+                <a href="#skills" class="text-white hover:text-pink-100 px-3 py-2 rounded-md text-lg font-medium transition duration-300 link-hover">Skills</a>
+                <a href="#projects" class="text-white hover:text-pink-100 px-3 py-2 rounded-md text-lg font-medium transition duration-300 link-hover">Projects</a>
+                <a href="#contact" class="text-white hover:text-pink-100 px-3 py-2 rounded-md text-lg font-medium transition duration-300 link-hover">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section text-pink-800">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-4 leading-tight">Hi, I'm <span class="text-pink-600">PROMISE</span>!</h1>
+            <p class="text-2xl md:text-3xl mb-8 font-light">A passionate Web Developer creating beautiful and functional web experiences.</p>
+            <a href="#projects" class="bg-pink-600 text-white px-8 py-4 rounded-full text-xl font-semibold hover:bg-pink-700 btn-primary">View My Work</a>
+        </div>
+    </section>
+
+    <!-- About Me Section -->
+    <section id="about" class="text-center">
+        <h2 class="text-4xl font-bold text-pink-700 mb-8">About Me</h2>
+        <div class="flex flex-col md:flex-row items-center md:space-x-8">
+            <div class="md:w-1/3 mb-6 md:mb-0">
+                <img src="images/IMG-20250511-WA0023.jpg" alt="Your Photo" class="rounded-full shadow-lg mx-auto w-48 h-48 md:w-64 md:h-64 object-cover border-4 border-pink-300">
+            </div>
+            <div class="md:w-2/3 text-lg text-gray-700 text-left">
+                <p class="mb-4">Hello! I'm Promise, a dedicated web developer with a keen eye for design and a passion for building user-friendly and efficient web applications. I specialize in front-end development, bringing ideas to life through clean and optimized code.</p>
+                <p class="mb-4">My journey into web development started with a curiosity for how websites work, which quickly turned into a love for crafting digital experiences. I enjoy solving complex problems and continuously learning new technologies to stay at the forefront of the industry.</p>
+                <p>When I'm not coding, you can find me doing other stuffs, e.g., reading, hiking, playing music. I believe in a balanced life and bringing creativity into everything I do.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="text-center">
+        <h2 class="text-4xl font-bold text-pink-700 mb-8">My Skills</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Skill Card 1 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">HTML5</h3>
+                <p class="text-gray-600">Structuring web content</p>
+            </div>
+            <!-- Skill Card 2 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">CSS3</h3>
+                <p class="text-gray-600">Styling and responsive design</p>
+            </div>
+            <!-- Skill Card 3 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">JavaScript</h3>
+                <p class="text-gray-600">Interactive web applications</p>
+            </div>
+            <!-- Skill Card 4 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">React</h3>
+                <p class="text-gray-600">Building user interfaces</p>
+            </div>
+            <!-- Skill Card 5 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">Tailwind CSS</h3>
+                <p class="text-gray-600">Rapid UI development</p>
+            </div>
+            <!-- Skill Card 6 -->
+            <div class="bg-pink-50 p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">Git & GitHub</h3>
+                <p class="text-gray-600">Version control</p>
+            </div>
+            <!-- Add more skills as needed -->
+        </div>
+    </section>
+
+    
+            <!-- Projects Section -->
+    <section id="projects" class="text-center">
+        <h2 class="text-4xl font-bold text-pink-700 mb-8">My Projects</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Project Card 1 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg project-card border border-pink-100">
+                <img src="images/Capture d’écran 2025-07-21 005831.png" alt="Project 1" class="rounded-md mb-4 w-full h-auto object-cover">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">Project Title One</h3>
+                <p class="text-gray-700 mb-4">A brief description of your project, highlighting its key features and technologies used.</p>
+                <div class="flex justify-center space-x-4">
+                    <a href="https://github.com/Promise-ctrl/Karim-s-Rentals/blob/main/index.html="_blank" class="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 btn-primary text-sm">
+                        View on GitHub
+                    </a>
+                    <a href="#" target="_blank" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-300 text-sm">
+                        Live Demo
+                    </a>
+                </div>
+            </div>
+            
+       
+            <!-- Project Card 2 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg project-card border border-pink-100">
+                <img src="images/Capture d’écran 2025-07-21 005831.png" alt="Project 1" class="rounded-md mb-4 w-full h-auto object-cover">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">Project Title One</h3>
+                <p class="text-gray-700 mb-4">A brief description of your project, highlighting its key features and technologies used.</p>
+                <div class="flex justify-center space-x-4">
+                    <a href="https://github.com/Promise-ctrl/Karim-s-Rentals/blob/main/index.html="_blank" class="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 btn-primary text-sm">
+                        View on GitHub
+                    </a>
+                    <a href="#" target="_blank" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-300 text-sm">
+                        Live Demo
+                    </a>
+                </div>
+            </div>
+            <!-- Project Card 3 -->
+            <div class="bg-white p-6 rounded-lg shadow-lg project-card border border-pink-100">
+                <img src="images/Capture d’écran 2025-07-20 233044.png" alt="Project 3" class="rounded-md mb-4 w-full h-auto object-cover">
+                <h3 class="text-2xl font-semibold text-pink-600 mb-2">Project Title Three</h3>
+                <p class="text-gray-700 mb-4">Yet another brief description of your project, highlighting its key features and technologies used.</p>
+                <div class="flex justify-center space-x-4">
+                    <a href="https://github.com/Promise-ctrl/precious-restaurant.git" target="_blank" class="bg-pink-500 text-white px-4 py-2 rounded-md hover:bg-pink-600 btn-primary text-sm">
+                        View on GitHub
+                    </a>
+                    <a href="#" target="_blank" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-300 text-sm">
+                        Live Demo
+                    </a>
+                </div>
+            </div>
+            <!-- Add more project cards as needed -->
+        </div>
+        <div class="mt-12">
+            <p class="text-xl text-gray-700 mb-4">Find more of my work on GitHub:</p>
+            <a href="https://github.com/yourusername" target="_blank" class="bg-pink-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-pink-700 btn-primary">
+                Visit My GitHub Profile
+            </a>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="text-center">
+        <h2 class="text-4xl font-bold text-pink-700 mb-8">Get In Touch</h2>
+        <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+            I'm always open to new opportunities, collaborations, and interesting discussions. Feel free to reach out!
+        </p>
+        <div class="flex flex-col items-center space-y-4">
+            <a href="mailto:youremail@example.com" class="bg-pink-500 text-white px-6 py-3 rounded-md hover:bg-pink-600 btn-primary text-lg">
+                Email Me
+            </a>
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 btn-primary text-lg">
+                Connect on LinkedIn
+            </a>
+            <!-- Add more contact links as needed -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-pink-400 text-white p-6 text-center mt-8 rounded-t-xl shadow-inner">
+        <p>&copy; <span id="current-year"></span> Promise. All rights reserved.</p>
+        <p class="mt-2">Built with ❤️ and Tailwind CSS.</p>
+    </footer>
+
+    <!-- AI Chatbox Container -->
+    <div id="chatbox-container">
+        <!-- Chatbox Toggle Button -->
+        <button id="chatbox-toggle-btn" class="fixed bottom-6 right-6 p-4 rounded-full shadow-lg text-white text-2xl">
+            💬
+        </button>
+
+        <!-- Chatbox Window -->
+        <div id="chatbox" class="fixed bottom-24 right-6 hidden">
+            <div id="chatbox-header">
+                AI Assistant
+                <button id="chatbox-close-btn">&times;</button>
+            </div>
+            <div id="chatbox-messages" class="flex flex-col">
+                <!-- Messages will be appended here -->
+                <div class="chat-message ai">Hello! How can I help you today?</div>
+            </div>
+            <div id="chatbox-input-container">
+                <input type="text" id="chatbox-input" placeholder="Type your message...">
+                <button id="chatbox-send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for dynamic year in footer and smooth scrolling (though CSS handles most of it)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year in footer
+            const yearSpan = document.getElementById('current-year');
+            if (yearSpan) {
+                yearSpan.textContent = new Date().getFullYear();
+            }
+
+            // Optional: Smooth scroll for navigation links (CSS scroll-behavior handles most, this is a fallback/enhancement)
+            document.querySelectorAll('nav a').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId.startsWith('#')) {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - document.querySelector('nav').offsetHeight, // Adjust for fixed nav height
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // AI Chatbox Functionality
+            const chatboxToggleBtn = document.getElementById('chatbox-toggle-btn');
+            const chatbox = document.getElementById('chatbox');
+            const chatboxCloseBtn = document.getElementById('chatbox-close-btn');
+            const chatboxMessages = document.getElementById('chatbox-messages');
+            const chatboxInput = document.getElementById('chatbox-input');
+            const chatboxSendBtn = document.getElementById('chatbox-send-btn');
+
+            let chatHistory = [{ role: "model", parts: [{ text: "Hello! How can I help you today?" }] }]; // Initialize chat history with AI's greeting
+
+            // Function to toggle chatbox visibility
+            function toggleChatbox() {
+                chatbox.classList.toggle('hidden'); // Toggle Tailwind's hidden class
+                chatbox.classList.toggle('open'); // Toggle 'open' class for CSS transitions
+            }
+
+            // Function to add a message to the chat display
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('chat-message', sender);
+                messageDiv.textContent = text;
+                chatboxMessages.appendChild(messageDiv);
+                chatboxMessages.scrollTop = chatboxMessages.scrollHeight; // Scroll to bottom
+            }
+
+            // Function to show loading indicator
+            function showLoadingIndicator() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.classList.add('loading-indicator');
+                loadingDiv.textContent = 'AI is typing';
+                loadingDiv.id = 'loading-indicator';
+                chatboxMessages.appendChild(loadingDiv);
+                chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+            }
+
+            // Function to hide loading indicator
+            function hideLoadingIndicator() {
+                const loadingDiv = document.getElementById('loading-indicator');
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+            }
+
+            // Function to send message to AI
+            async function sendMessage() {
+                const userMessage = chatboxInput.value.trim();
+                if (userMessage === '') return;
+
+                addMessage(userMessage, 'user');
+                chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+                chatboxInput.value = ''; // Clear input field
+
+                showLoadingIndicator();
+
+                try {
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; // Canvas will automatically provide the API key at runtime
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    hideLoadingIndicator();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+                        addMessage(aiResponse, 'ai');
+                        chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                    } else {
+                        addMessage("Oops! Something went wrong. Please try again.", 'ai');
+                        console.error("Unexpected API response structure:", result);
+                    }
+                } catch (error) {
+                    hideLoadingIndicator();
+                    addMessage("Error connecting to AI. Please try again later.", 'ai');
+                    console.error("Error fetching AI response:", error);
+                }
+            }
+
+            // Event Listeners
+            chatboxToggleBtn.addEventListener('click', toggleChatbox);
+            chatboxCloseBtn.addEventListener('click', toggleChatbox);
+            chatboxSendBtn.addEventListener('click', sendMessage);
+            chatboxInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
